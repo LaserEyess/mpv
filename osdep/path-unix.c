@@ -36,12 +36,19 @@ static void path_init(void)
     if (home && home[0])
         snprintf(mpv_home, sizeof(mpv_home), "%s/.mpv", home);
 
-    // Maintain compatibility with old XDG config dirs
     if (xdg_dir && xdg_dir[0]) {
         snprintf(old_home, sizeof(old_home), "%s/mpv", xdg_dir);
     } else if (home && home[0]) {
         snprintf(old_home, sizeof(old_home), "%s/.config/mpv", home);
     }
+
+    // Allow for mpv_home to be the XDG config dir, if enabled.
+    if (HAVE_XDG) {
+        char tmp[512];
+        strncpy(tmp, mpv_home, sizeof(mpv_home));
+        strncpy(mpv_home, old_home, sizeof(old_home));
+        strncpy(old_home, tmp, sizeof(tmp));
+    }   
 
     // If the compat. dir exists, and the proper dir doesn't, use the compat.
     // config dir only.
